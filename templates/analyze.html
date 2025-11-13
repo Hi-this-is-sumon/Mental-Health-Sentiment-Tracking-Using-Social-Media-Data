@@ -12,13 +12,18 @@
     <div class="container">
         <header class="header">
             <div class="logo">🧠 Mental Health Tracker</div>
-            <button class="theme-toggle" aria-label="Toggle dark mode"></button>
+            <div class="nav-actions">
+                <a href="/" class="btn btn-small btn-outline">Home</a>
+                <a href="/history" class="btn btn-small btn-outline">History</a>
+                {% if session.get('user') %}
+                    <span class="user-greet">Hi, {{ session['user']['name'] }}</span>
+                    <a href="/logout" class="btn btn-small btn-outline">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn btn-small">Login with GitHub</a>
+                {% endif %}
+                <button class="theme-toggle" aria-label="Toggle dark mode"></button>
+            </div>
         </header>
-
-        <nav style="text-align: center; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-            <a href="/" class="btn btn-outline">Home</a>
-            <a href="/history" class="btn btn-outline">View History</a>
-        </nav>
 
         <div class="card disclaimer">
             <h3>⚠️ Important Disclaimer</h3>

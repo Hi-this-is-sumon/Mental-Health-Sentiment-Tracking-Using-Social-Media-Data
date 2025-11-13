@@ -15,8 +15,17 @@
         </header>
 
         <nav style="text-align: center; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-            <a href="/" class="btn btn-outline">Home</a>
-            <a href="/analyze" class="btn btn-outline">New Analysis</a>
+            <div class="nav-actions">
+                <a href="/" class="btn btn-small btn-outline">Home</a>
+                <a href="/analyze" class="btn btn-small btn-outline">Analyze</a>
+                {% if session.get('user') %}
+                    <span class="user-greet">Hi, {{ session['user']['name'] }}</span>
+                    <a href="/logout" class="btn btn-small btn-outline">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn btn-small">Login with GitHub</a>
+                {% endif %}
+                <button class="theme-toggle" aria-label="Toggle dark mode"></button>
+            </div>
         </nav>
 
         <div class="card">

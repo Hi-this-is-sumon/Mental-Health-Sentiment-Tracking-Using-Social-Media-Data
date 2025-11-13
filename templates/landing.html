@@ -11,7 +11,16 @@
     <div class="container">
         <header class="header">
             <div class="logo">🧠 Mental Health Tracker</div>
-            <button class="theme-toggle" aria-label="Toggle dark mode"></button>
+            <div class="nav-actions">
+                {% if session.get('user') %}
+                    <span class="user-greet">Hi, {{ session['user']['name'] }}</span>
+                    <a href="/analyze" class="btn btn-small">Analyze</a>
+                    <a href="/logout" class="btn btn-outline btn-small">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn btn-small">Login with GitHub</a>
+                {% endif %}
+                <button class="theme-toggle" aria-label="Toggle dark mode"></button>
+            </div>
         </header>
 
         <div class="card">
