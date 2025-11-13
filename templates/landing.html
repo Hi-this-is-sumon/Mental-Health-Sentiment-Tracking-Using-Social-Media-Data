@@ -36,8 +36,16 @@
                 </ul>
             </div>
             <div style="text-align: center; margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <a href="/analyze" class="btn">Start Emotional Check</a>
-                <a href="/history" class="btn btn-outline">View History</a>
+                {% if session.get('user') %}
+                    <a href="/analyze" class="btn">Start Emotional Check</a>
+                    <a href="/history" class="btn btn-outline">View History</a>
+                {% else %}
+                    <a href="/login" class="btn">Login to Start Emotional Check</a>
+                    <a href="/login" class="btn btn-outline">Login to View History</a>
+                {% endif %}
+            </div>
+            <div style="text-align:center; margin-top:12px; font-size:0.95rem; color:var(--muted);">
+                <strong>Login options:</strong> Sign in with GitHub or Google (we store only a short session token; no user data is persisted on this server).
             </div>
         </div>
 
