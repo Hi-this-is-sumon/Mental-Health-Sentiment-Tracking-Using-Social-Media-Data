@@ -1,0 +1,16 @@
+pandas
+scikit-learn
+nltk
+numpy
+matplotlib
+seaborn
+wordcloud
+joblib
+tqdm
+transformers
+torch
+regex
+flask
+reportlab
+flask-caching
+flask-limiter

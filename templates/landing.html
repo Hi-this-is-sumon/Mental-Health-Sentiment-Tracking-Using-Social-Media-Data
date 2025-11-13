@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Sentiment Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">🧠 Mental Health Tracker</div>
+            <button class="theme-toggle" aria-label="Toggle dark mode"></button>
+        </header>
+
+        <div class="card">
+            <h1>Welcome to Your Emotional Wellness Companion</h1>
+            <div class="quote" id="quote">"You are not alone in this journey. Your feelings are valid."</div>
+            <div class="suggestions">
+                <p>Remember:</p>
+                <ul>
+                    <li>Take a deep breath and acknowledge your emotions.</li>
+                    <li>Your feelings matter and deserve attention.</li>
+                    <li>Small steps can lead to big changes.</li>
+                    <li>Reach out to loved ones when you need support.</li>
+                </ul>
+            </div>
+            <div style="text-align: center; margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="/analyze" class="btn">Start Emotional Check</a>
+                <a href="/history" class="btn btn-outline">View History</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Quick Help</h3>
+            <p>This tool provides AI-powered sentiment analysis of text to help you understand emotional patterns. Remember:</p>
+            <ul>
+                <li>This is not a diagnostic tool or medical advice</li>
+                <li>Results are for educational purposes only</li>
+                <li>If you're struggling, please seek professional help</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis History - Mental Health Sentiment Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">🧠 Mental Health Tracker</div>
+            <button class="theme-toggle" aria-label="Toggle dark mode"></button>
+        </header>
+
+        <nav style="text-align: center; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+            <a href="/" class="btn btn-outline">Home</a>
+            <a href="/analyze" class="btn btn-outline">New Analysis</a>
+        </nav>
+
+        <div class="card">
+            <h1>Your Analysis History</h1>
+            <p>Review your previous sentiment analyses. All data is stored locally in your browser.</p>
+
+            <div style="text-align: center; margin: 20px 0; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button id="export-btn" class="btn btn-secondary">Export All History</button>
+                <button id="clear-history-btn" class="btn" style="background: #f5576c;">Clear All History</button>
+            </div>
+        </div>
+
+        <div id="history-container">
+            <ul id="history-list" class="history-list">
+                <!-- History items will be populated by JavaScript -->
+            </ul>
+        </div>
+
+        <div class="card" id="empty-state" style="display: none; text-align: center;">
+            <h3>No Analysis History Yet</h3>
+            <p>You haven't performed any sentiment analyses yet. Start by analyzing some text!</p>
+            <a href="/analyze" class="btn">Start Analyzing</a>
+        </div>
+
+        <div class="card footer">
+            <h4>Privacy Notice</h4>
+            <p>📱 Your analysis history is stored only in your browser's local storage.</p>
+            <p>🔒 No data is sent to external servers or stored on our systems.</p>
+            <p>🗑️ You can clear your history at any time using the button above.</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <!-- Removed duplicate SentimentTracker instantiation to prevent double event binding -->
+</body>
+</html>

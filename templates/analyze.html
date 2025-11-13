@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotional Analysis - Mental Health Sentiment Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/emotions.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">🧠 Mental Health Tracker</div>
+            <button class="theme-toggle" aria-label="Toggle dark mode"></button>
+        </header>
+
+        <nav style="text-align: center; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+            <a href="/" class="btn btn-outline">Home</a>
+            <a href="/history" class="btn btn-outline">View History</a>
+        </nav>
+
+        <div class="card disclaimer">
+            <h3>⚠️ Important Disclaimer</h3>
+            <p>This tool is for research and educational purposes only. It does not provide medical diagnosis, treatment, or professional advice. Results are based on text analysis and should not be used for clinical decisions. If you're experiencing mental health concerns, please consult a qualified healthcare professional.</p>
+        </div>
+
+        <div class="card input-section">
+            <h1>Share Your Thoughts</h1>
+            <form id="analyze-form">
+                <div class="form-group">
+                    <label for="text-input">
+                        How are you feeling today? Share your thoughts here...
+                        <span class="tooltip">?
+                            <span class="tooltip-text">Enter any text you'd like to analyze. The more detailed your input, the better the analysis.</span>
+                        </span>
+                    </label>
+                    <textarea id="text-input" name="text" placeholder="I'm feeling..." required maxlength="2000" style="min-height: 120px; resize: vertical;"></textarea>
+                    <small style="color: #718096; display: block; margin-top: 5px;">Maximum 2000 characters</small>
+                </div>
+                <div id="loading" style="display: none; margin: 20px 0;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px;">Analyzing your emotions...</p>
+                </div>
+                <button type="submit" class="btn">Analyze My Emotions</button>
+            </form>
+        </div>
+
+        <div class="results" id="results">
+            <div class="prediction" id="prediction"></div>
+            <div class="result-card">
+                <h3>Analysis Results</h3>
+                <div id="confidence"></div>
+                <div id="emotions-grid" class="emotions-grid"></div>
+                <!-- Per-input probability chart -->
+                <div style="margin-top: 15px; width: 100%; overflow-x: auto;">
+                    <canvas id="input-probs-chart" width="600" height="200" style="max-width:100%; background: var(--card-bg); border-radius: 8px; box-shadow: var(--shadow); display: block; margin: 0 auto;"></canvas>
+                </div>
+            </div>
+            <div class="result-card explanation" id="explanation"></div>
+            <div class="result-card suggestion" id="suggestion"></div>
+            <div class="results-grid">
+                <div class="viz-card">
+                    <h3>Sentiment Distribution</h3>
+                    <div id="sentiment-loading" class="loading-placeholder">
+                        <div class="loading-spinner"></div>
+                        <p>Loading visualization...</p>
+                    </div>
+                    <div class="viz-inner">
+                        <img id="sentiment-plot" class="viz-img" src="" alt="Sentiment Distribution">
+                    </div>
+                </div>
+                <div class="viz-card">
+                    <h3>Word Frequency</h3>
+                    <div id="wordcloud-loading" class="loading-placeholder">
+                        <div class="loading-spinner"></div>
+                        <p>Loading visualization...</p>
+                    </div>
+                    <div class="viz-inner">
+                        <img id="wordcloud-plot" class="viz-img" src="" alt="Word Cloud">
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button id="export-btn" class="btn btn-secondary">Export Results</button>
+            </div>
+        </div>
+
+        <div class="card footer">
+            <h4>Privacy & Security</h4>
+            <p>🔒 We do not store any text you enter.</p>
+            <p>🩺 This is not a diagnostic tool.</p>
+            <p>🔬 Research-only; your privacy is protected.</p>
+            <p>📊 Results are kept in your browser only.</p>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>How to Use This Tool</h3>
+            <ul>
+                <li>Enter your thoughts or text in the input field</li>
+                <li>Click "Analyze My Emotions" to get sentiment analysis</li>
+                <li>Review the results and confidence score</li>
+                <li>Use the visualizations to understand patterns</li>
+                <li>Export your results if needed</li>
+            </ul>
+            <h4>Understanding Results</h4>
+            <p>The confidence score shows how certain the model is about the prediction. Higher scores indicate more reliable results.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
