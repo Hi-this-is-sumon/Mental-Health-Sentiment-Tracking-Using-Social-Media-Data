@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, send_file, session, redirect, url_for
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -26,6 +26,61 @@ import logging
 import threading
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
+# Secret key for session signing; set via environment variable in production
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-me')
+
+# --- OAuth (GitHub) setup (no local user storage) ---
+from authlib.integrations.flask_client import OAuth
+oauth = OAuth(app)
+oauth.register(
+    name='github',
+    client_id=os.environ.get('GITHUB_CLIENT_ID'),
+    client_secret=os.environ.get('GITHUB_CLIENT_SECRET'),
+    access_token_url='https://github.com/login/oauth/access_token',
+    authorize_url='https://github.com/login/oauth/authorize',
+    api_base_url='https://api.github.com/',
+    client_kwargs={'scope': 'user:email'},
+)
+
+from functools import wraps
+
+def require_login(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get('user'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route('/login')
+def login():
+    # Redirect user to GitHub for authorization
+    redirect_uri = url_for('auth_callback', _external=True)
+    return oauth.github.authorize_redirect(redirect_uri)
+
+
+@app.route('/auth/callback')
+def auth_callback():
+    # Handle callback from GitHub
+    token = oauth.github.authorize_access_token()
+    if not token:
+        return redirect(url_for('landing'))
+    resp = oauth.github.get('user')
+    profile = resp.json()
+    # Store minimal profile in session only (no DB persistence)
+    session['user'] = {
+        'id': profile.get('id'),
+        'login': profile.get('login'),
+        'name': profile.get('name') or profile.get('login')
+    }
+    return redirect(url_for('analyze'))
+
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('landing'))
 
 # Configure caching and rate limiting
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
@@ -81,10 +136,12 @@ def landing():
     return render_template('landing.html')
 
 @app.route('/analyze')
+@require_login
 def analyze():
     return render_template('analyze.html')
 
 @app.route('/history')
+@require_login
 def history():
     return render_template('history.html')
 

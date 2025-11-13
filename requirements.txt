@@ -14,3 +14,8 @@ flask
 reportlab
 flask-caching
 flask-limiter
+flask-login
+werkzeug
+authlib
+requests
+gunicorn
