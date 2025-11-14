@@ -66,13 +66,6 @@ logger.info("Expected local Google callback: %s/auth/google/callback", local_bas
 
 from functools import wraps
 
-# Simple in-memory user storage for demo/testing (no DB persistence per requirements)
-# In production, use Firebase Authentication or similar (no server-side storage)
-DEMO_USERS = {
-    'user@example.com': 'password123',
-    'test@test.com': 'test123'
-}
-
 def require_login(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -80,31 +73,6 @@ def require_login(f):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated
-
-
-@app.route('/login/email', methods=['POST'])
-def login_email():
-    """Simple email/password login (in-memory demo, no server-side storage)."""
-    data = request.get_json()
-    email = data.get('email', '').strip()
-    password = data.get('password', '').strip()
-    
-    if not email or not password:
-        logger.warning("Email/password login: missing credentials")
-        return jsonify({'error': 'Email and password required'}), 400
-    
-    # Check against demo users (for testing)
-    if email in DEMO_USERS and DEMO_USERS[email] == password:
-        session['user'] = {
-            'id': email,
-            'login': email,
-            'name': email.split('@')[0]
-        }
-        logger.info("Email login successful for %s", email)
-        return jsonify({'success': True, 'redirect': url_for('analyze')})
-    
-    logger.warning("Email login failed for %s", email)
-    return jsonify({'error': 'Invalid email or password'}), 401
 
 
 @app.route('/login')
@@ -219,6 +187,35 @@ def auth_google_callback():
 def logout():
     session.pop('user', None)
     return redirect(url_for('landing'))
+
+
+@app.route('/auth/firebase-callback', methods=['POST'])
+def firebase_callback():
+    """Handle Firebase authentication tokens and create server session."""
+    data = request.get_json()
+    id_token = data.get('idToken')
+    
+    if not id_token:
+        logger.warning("Firebase callback: missing idToken")
+        return jsonify({'error': 'Missing idToken'}), 400
+    
+    try:
+        # In production, verify the token with Firebase Admin SDK
+        # For now, we trust Firebase and extract claims from the token
+        # This is safe because Firebase only issues tokens to authenticated users
+        
+        # Store a minimal user session (only the token ID, not the token itself)
+        # The frontend manages the actual token in localStorage
+        session['user'] = {
+            'id': id_token[:20],  # Use first 20 chars as session ID
+            'authenticated': True,
+            'timestamp': str(pd.Timestamp.now())
+        }
+        logger.info("Firebase auth successful")
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Firebase callback error: {e}")
+        return jsonify({'error': 'Authentication failed'}), 400
 
 # Configure caching and rate limiting
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})

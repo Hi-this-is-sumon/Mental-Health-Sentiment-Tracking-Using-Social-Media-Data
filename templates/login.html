@@ -189,33 +189,19 @@
     <div class="login-container">
         <div class="login-header">
             <h1>🧠 MindSentiment</h1>
-            <p>Sign in to continue (no account data stored)</p>
+            <p>Sign in with your GitHub or Google account</p>
         </div>
 
         <div id="message" class="message"></div>
 
-        <!-- Email/Password Login Form -->
-        <form id="emailForm" style="display: block;">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="user@example.com" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="password123" required>
-            </div>
-            <button type="submit" class="login-btn" id="emailBtn">Sign In</button>
-            <p style="text-align: center; font-size: 12px; color: #999; margin-top: 10px;">
-                Demo credentials: user@example.com / password123
-            </p>
-        </form>
-
-        <div class="divider"><span>Or continue with</span></div>
-
         <!-- OAuth Buttons -->
-        <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-            <a href="/login/github" class="login-btn" style="display:inline-block; padding:12px 20px; text-decoration: none;">GitHub</a>
-            <a href="/login/google" class="login-btn" style="display:inline-block; padding:12px 20px; background: linear-gradient(135deg, #DB4437 0%, #C23321 100%); text-decoration: none;">Google</a>
+        <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; flex-direction: column;">
+            <a href="/login/github" class="login-btn" style="display:block; padding:15px 20px; text-decoration: none; font-weight: 600;">
+                🐙 Sign in with GitHub
+            </a>
+            <a href="/login/google" class="login-btn" style="display:block; padding:15px 20px; background: linear-gradient(135deg, #DB4437 0%, #C23321 100%); text-decoration: none; font-weight: 600;">
+                🔍 Sign in with Google
+            </a>
         </div>
 
         <div class="divider"><span>Privacy</span></div>
@@ -223,46 +209,5 @@
             We only store a session token in your browser. No user data is persisted on the server.
         </div>
     </div>
-
-    <script>
-        document.getElementById('emailForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const msgEl = document.getElementById('message');
-            const btn = document.getElementById('emailBtn');
-
-            btn.disabled = true;
-            btn.textContent = 'Signing in...';
-
-            try {
-                const res = await fetch('/login/email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await res.json();
-
-                if (res.ok && data.success) {
-                    msgEl.className = 'message success';
-                    msgEl.textContent = 'Login successful! Redirecting...';
-                    setTimeout(() => {
-                        window.location.href = data.redirect;
-                    }, 1000);
-                } else {
-                    msgEl.className = 'message error';
-                    msgEl.textContent = data.error || 'Login failed';
-                    btn.disabled = false;
-                    btn.textContent = 'Sign In';
-                }
-            } catch (err) {
-                msgEl.className = 'message error';
-                msgEl.textContent = 'Network error: ' + err.message;
-                btn.disabled = false;
-                btn.textContent = 'Sign In';
-            }
-        });
-    </script>
 </body>
 </html>
