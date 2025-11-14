@@ -29,40 +29,10 @@ app = Flask(__name__, template_folder='../templates', static_folder='../static')
 # Secret key for session signing; set via environment variable in production
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-me')
 
-# --- OAuth (GitHub) setup (no local user storage) ---
-from authlib.integrations.flask_client import OAuth
-oauth = OAuth(app)
-oauth.register(
-    name='github',
-    client_id=os.environ.get('GITHUB_CLIENT_ID'),
-    client_secret=os.environ.get('GITHUB_CLIENT_SECRET'),
-    access_token_url='https://github.com/login/oauth/access_token',
-    authorize_url='https://github.com/login/oauth/authorize',
-    api_base_url='https://api.github.com/',
-    client_kwargs={'scope': 'user:email'},
-)
-
-# Google OAuth (Gmail) - no local user storage
-oauth.register(
-    name='google',
-    client_id=os.environ.get('GOOGLE_CLIENT_ID'),
-    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET'),
-    access_token_url='https://oauth2.googleapis.com/token',
-    authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
-    api_base_url='https://www.googleapis.com/oauth2/v1/',
-    client_kwargs={'scope': 'openid email profile'},
-)
-
-# Startup checks: log presence of required OAuth env vars and expected callback URLs
-# Set up logging (make logger available before startup checks)
+# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-logger.info("OAuth config: GITHUB_CLIENT_ID set=%s", bool(os.environ.get('GITHUB_CLIENT_ID')))
-logger.info("OAuth config: GOOGLE_CLIENT_ID set=%s", bool(os.environ.get('GOOGLE_CLIENT_ID')))
-local_base = 'http://localhost:5000'
-logger.info("Expected local GitHub callback: %s/auth/callback", local_base)
-logger.info("Expected local Google callback: %s/auth/google/callback", local_base)
+logger.info("App initialized. Using Firebase Authentication.")
 
 from functools import wraps
 
@@ -77,110 +47,8 @@ def require_login(f):
 
 @app.route('/login')
 def login():
-    # Render a login page that offers multiple OAuth providers
+    # Render a login page with Firebase authentication
     return render_template('login.html')
-
-
-@app.route('/auth/debug')
-def auth_debug():
-    """Return non-sensitive OAuth debug info to help diagnose redirect/ENV issues."""
-    info = {
-        'github_client_id_set': bool(os.environ.get('GITHUB_CLIENT_ID')),
-        'google_client_id_set': bool(os.environ.get('GOOGLE_CLIENT_ID')),
-        'callback_github': url_for('auth_callback', _external=True),
-        'callback_google': url_for('auth_google_callback', _external=True),
-        'server_base': request.host_url
-    }
-    return jsonify(info)
-
-
-@app.route('/login/github')
-def login_github():
-    redirect_uri = url_for('auth_callback', _external=True)
-    return oauth.github.authorize_redirect(redirect_uri)
-
-
-@app.route('/login/github/debug')
-def login_github_debug():
-    """Return the GitHub authorize URL instead of redirecting (debug only)."""
-    redirect_uri = url_for('auth_callback', _external=True)
-    try:
-        resp = oauth.github.authorize_redirect(redirect_uri)
-        location = resp.headers.get('Location') if resp and hasattr(resp, 'headers') else None
-        return jsonify({'authorize_url': location})
-    except Exception as e:
-        logger.error("GitHub authorize debug error: %s", e)
-        return jsonify({'error': str(e)}), 400
-
-
-@app.route('/login/google')
-def login_google():
-    redirect_uri = url_for('auth_google_callback', _external=True)
-    return oauth.google.authorize_redirect(redirect_uri)
-
-
-@app.route('/login/google/debug')
-def login_google_debug():
-    """Return the Google authorize URL instead of redirecting (debug only)."""
-    redirect_uri = url_for('auth_google_callback', _external=True)
-    try:
-        resp = oauth.google.authorize_redirect(redirect_uri)
-        location = resp.headers.get('Location') if resp and hasattr(resp, 'headers') else None
-        return jsonify({'authorize_url': location})
-    except Exception as e:
-        logger.error("Google authorize debug error: %s", e)
-        return jsonify({'error': str(e)}), 400
-
-
-@app.route('/auth/callback')
-def auth_callback():
-    # Handle callback from GitHub
-    try:
-        token = oauth.github.authorize_access_token()
-    except Exception as e:
-        logger.error("GitHub authorize error: %s", e)
-        return render_template('auth_error.html', provider='GitHub', error=str(e)), 400
-    if not token:
-        logger.warning("GitHub authorize returned no token")
-        return render_template('auth_error.html', provider='GitHub', error='No token received'), 400
-    try:
-        resp = oauth.github.get('user')
-        profile = resp.json()
-    except Exception as e:
-        logger.error("GitHub profile fetch error: %s", e)
-        return render_template('auth_error.html', provider='GitHub', error=str(e)), 400
-    # Store minimal profile in session only (no DB persistence)
-    session['user'] = {
-        'id': profile.get('id'),
-        'login': profile.get('login'),
-        'name': profile.get('name') or profile.get('login')
-    }
-    return redirect(url_for('analyze'))
-
-
-@app.route('/auth/google/callback')
-def auth_google_callback():
-    try:
-        token = oauth.google.authorize_access_token()
-    except Exception as e:
-        logger.error("Google authorize error: %s", e)
-        return render_template('auth_error.html', provider='Google', error=str(e)), 400
-    if not token:
-        logger.warning("Google authorize returned no token")
-        return render_template('auth_error.html', provider='Google', error='No token received'), 400
-    try:
-        resp = oauth.google.get('userinfo')
-        profile = resp.json()
-    except Exception as e:
-        logger.error("Google userinfo fetch error: %s", e)
-        return render_template('auth_error.html', provider='Google', error=str(e)), 400
-    # Google returns 'email' and 'name'
-    session['user'] = {
-        'id': profile.get('id') or profile.get('email'),
-        'login': profile.get('email'),
-        'name': profile.get('name') or profile.get('email')
-    }
-    return redirect(url_for('analyze'))
 
 
 @app.route('/logout')

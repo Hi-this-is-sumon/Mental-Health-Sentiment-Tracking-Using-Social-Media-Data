@@ -20,25 +20,14 @@
             border-radius: 12px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             padding: 40px;
             animation: slideIn 0.5s ease-out;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .login-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .login-header h1 {
@@ -54,22 +43,22 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #333;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 14px;
             transition: all 0.3s ease;
             box-sizing: border-box;
@@ -83,16 +72,16 @@
 
         .login-btn {
             width: 100%;
-            padding: 12px;
+            padding: 11px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 6px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .login-btn:hover {
@@ -100,29 +89,46 @@
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
 
-        .login-btn:active {
-            transform: translateY(0);
-        }
-
-        .login-btn.loading {
+        .login-btn:disabled {
             opacity: 0.7;
             cursor: not-allowed;
         }
 
-        .message {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 14px;
-            display: none;
+        .oauth-btn {
+            display: block;
+            width: 100%;
+            padding: 11px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            display: block;
+        .oauth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .github-btn {
+            background: #333;
+            color: white;
+        }
+
+        .google-btn {
+            background: #DB4437;
+            color: white;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 13px;
+            display: none;
         }
 
         .message.error {
@@ -132,9 +138,16 @@
             display: block;
         }
 
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
         .divider {
             text-align: center;
-            margin: 30px 0;
+            margin: 20px 0;
             position: relative;
         }
 
@@ -150,37 +163,48 @@
 
         .divider span {
             background: white;
-            padding: 0 10px;
+            padding: 0 8px;
             position: relative;
             color: #999;
-            font-size: 13px;
+            font-size: 12px;
         }
 
-        .register-link {
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .register-link a {
+        .toggle-btn {
+            background: none;
+            border: none;
             color: #667eea;
-            text-decoration: none;
+            cursor: pointer;
             font-weight: 600;
-            transition: color 0.3s ease;
+            text-decoration: underline;
+            font-size: 13px;
+            padding: 0;
         }
 
-        .register-link a:hover {
+        .toggle-btn:hover {
             color: #764ba2;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .privacy-note {
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+            margin-top: 15px;
+            line-height: 1.4;
         }
 
         @media (max-width: 480px) {
             .login-container {
-                padding: 30px 20px;
+                padding: 25px 20px;
                 margin: 20px;
+                max-width: 100%;
             }
 
             .login-header h1 {
-                font-size: 24px;
+                font-size: 22px;
             }
         }
     </style>
@@ -189,25 +213,222 @@
     <div class="login-container">
         <div class="login-header">
             <h1>🧠 MindSentiment</h1>
-            <p>Sign in with your GitHub or Google account</p>
+            <p>Mental Health Sentiment Tracking</p>
         </div>
 
         <div id="message" class="message"></div>
 
-        <!-- OAuth Buttons -->
-        <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; flex-direction: column;">
-            <a href="/login/github" class="login-btn" style="display:block; padding:15px 20px; text-decoration: none; font-weight: 600;">
-                🐙 Sign in with GitHub
-            </a>
-            <a href="/login/google" class="login-btn" style="display:block; padding:15px 20px; background: linear-gradient(135deg, #DB4437 0%, #C23321 100%); text-decoration: none; font-weight: 600;">
-                🔍 Sign in with Google
-            </a>
+        <!-- Email/Password Section -->
+        <div id="emailSection">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="6+ characters" required>
+            </div>
+            <button id="emailLoginBtn" class="login-btn">Sign In</button>
+            <div style="text-align: center; margin-top: 10px;">
+                <span style="font-size: 12px; color: #666;">Don't have an account? </span>
+                <button id="signupToggleBtn" class="toggle-btn">Sign up</button>
+            </div>
         </div>
 
-        <div class="divider"><span>Privacy</span></div>
-        <div class="register-link" style="text-align:center;">
-            We only store a session token in your browser. No user data is persisted on the server.
+        <!-- Sign Up Section (Hidden) -->
+        <div id="signupSection" class="hidden">
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" placeholder="At least 6 characters" required>
+            </div>
+            <button id="signupBtn" class="login-btn">Create Account</button>
+            <div style="text-align: center; margin-top: 10px;">
+                <span style="font-size: 12px; color: #666;">Already have an account? </span>
+                <button id="loginToggleBtn" class="toggle-btn">Sign in</button>
+            </div>
+        </div>
+
+        <div class="divider"><span>Or continue with</span></div>
+
+        <!-- OAuth Buttons -->
+        <button id="githubBtn" class="oauth-btn github-btn">🐙 Sign in with GitHub</button>
+        <button id="googleBtn" class="oauth-btn google-btn">🔍 Sign in with Google</button>
+
+        <div class="privacy-note">
+            🔒 Authentication via Firebase. Session stored locally. No user data persisted on servers.
         </div>
     </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+
+    <script>
+        // ===== PASTE YOUR FIREBASE CONFIG BELOW =====
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // ===== END FIREBASE CONFIG =====
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        const messageEl = document.getElementById('message');
+        const emailSection = document.getElementById('emailSection');
+        const signupSection = document.getElementById('signupSection');
+
+        // Toggle between login and signup
+        document.getElementById('signupToggleBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            emailSection.classList.add('hidden');
+            signupSection.classList.remove('hidden');
+            messageEl.classList.remove('error', 'success');
+            messageEl.textContent = '';
+        });
+
+        document.getElementById('loginToggleBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            signupSection.classList.add('hidden');
+            emailSection.classList.remove('hidden');
+            messageEl.classList.remove('error', 'success');
+            messageEl.textContent = '';
+        });
+
+        // Email/Password Sign In
+        document.getElementById('emailLoginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showMessage('Please enter email and password', 'error');
+                return;
+            }
+
+            try {
+                const btn = document.getElementById('emailLoginBtn');
+                btn.disabled = true;
+                btn.textContent = 'Signing in...';
+
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const idToken = await userCredential.user.getIdToken();
+
+                const res = await fetch('/auth/firebase-callback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken })
+                });
+
+                if (res.ok) {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = '/analyze', 1500);
+                } else {
+                    showMessage('Session failed', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Sign In';
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+                document.getElementById('emailLoginBtn').disabled = false;
+                document.getElementById('emailLoginBtn').textContent = 'Sign In';
+            }
+        });
+
+        // Email/Password Sign Up
+        document.getElementById('signupBtn').addEventListener('click', async () => {
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            if (!email || !password || password.length < 6) {
+                showMessage('Email and password (6+ chars) required', 'error');
+                return;
+            }
+
+            try {
+                const btn = document.getElementById('signupBtn');
+                btn.disabled = true;
+                btn.textContent = 'Creating account...';
+
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const idToken = await userCredential.user.getIdToken();
+
+                const res = await fetch('/auth/firebase-callback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken })
+                });
+
+                if (res.ok) {
+                    showMessage('Account created! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = '/analyze', 1500);
+                } else {
+                    showMessage('Session failed', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account';
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+                document.getElementById('signupBtn').disabled = false;
+                document.getElementById('signupBtn').textContent = 'Create Account';
+            }
+        });
+
+        // GitHub Login
+        document.getElementById('githubBtn').addEventListener('click', async () => {
+            try {
+                const provider = new firebase.auth.GithubAuthProvider();
+                const userCredential = await auth.signInWithPopup(provider);
+                const idToken = await userCredential.user.getIdToken();
+
+                const res = await fetch('/auth/firebase-callback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken })
+                });
+
+                if (res.ok) {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = '/analyze', 1500);
+                }
+            } catch (error) {
+                showMessage('GitHub login failed: ' + error.message, 'error');
+            }
+        });
+
+        // Google Login
+        document.getElementById('googleBtn').addEventListener('click', async () => {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const userCredential = await auth.signInWithPopup(provider);
+                const idToken = await userCredential.user.getIdToken();
+
+                const res = await fetch('/auth/firebase-callback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken })
+                });
+
+                if (res.ok) {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = '/analyze', 1500);
+                }
+            } catch (error) {
+                showMessage('Google login failed: ' + error.message, 'error');
+            }
+        });
+
+        function showMessage(text, type) {
+            messageEl.textContent = text;
+            messageEl.className = 'message ' + type;
+        }
+    </script>
 </body>
 </html>
