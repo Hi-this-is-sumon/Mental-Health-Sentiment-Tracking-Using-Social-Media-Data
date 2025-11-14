@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Authentication Error</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+  </head>
+  <body>
+    <main class="container">
+      <h1>Authentication Error</h1>
+      <p>There was a problem signing in with {{ provider }}.</p>
+      {% if error %}
+      <section class="error-details">
+        <h2>Details</h2>
+        <pre>{{ error }}</pre>
+      </section>
+      {% endif %}
+      <p>Please check the following:</p>
+      <ul>
+        <li>Your OAuth client ID and secret are set as environment variables.</li>
+        <li>The provider's redirect URI matches the URL below exactly.</li>
+        <li>If testing locally, the callback URL should be <code>http://localhost:5000/auth/callback</code> for GitHub and <code>http://localhost:5000/auth/google/callback</code> for Google.</li>
+      </ul>
+      <p><a href="/login">Return to login</a></p>
+    </main>
+  </body>
+</html>

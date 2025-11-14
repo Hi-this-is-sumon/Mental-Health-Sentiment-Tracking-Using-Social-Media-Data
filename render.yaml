@@ -1,0 +1,17 @@
+# Render Web Service Configuration
+# Save this as render.yaml in your project root
+
+services:
+  - type: web
+    name: mental-health-sentiment
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn src.app:app
+    envVars:
+      - key: SECRET_KEY
+        sync: false  # You'll set this in Render dashboard
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHONUNBUFFERED
+        value: "1"

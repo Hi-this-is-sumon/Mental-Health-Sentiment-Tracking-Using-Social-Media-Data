@@ -42,7 +42,36 @@ oauth.register(
     client_kwargs={'scope': 'user:email'},
 )
 
+# Google OAuth (Gmail) - no local user storage
+oauth.register(
+    name='google',
+    client_id=os.environ.get('GOOGLE_CLIENT_ID'),
+    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET'),
+    access_token_url='https://oauth2.googleapis.com/token',
+    authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    client_kwargs={'scope': 'openid email profile'},
+)
+
+# Startup checks: log presence of required OAuth env vars and expected callback URLs
+# Set up logging (make logger available before startup checks)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info("OAuth config: GITHUB_CLIENT_ID set=%s", bool(os.environ.get('GITHUB_CLIENT_ID')))
+logger.info("OAuth config: GOOGLE_CLIENT_ID set=%s", bool(os.environ.get('GOOGLE_CLIENT_ID')))
+local_base = 'http://localhost:5000'
+logger.info("Expected local GitHub callback: %s/auth/callback", local_base)
+logger.info("Expected local Google callback: %s/auth/google/callback", local_base)
+
 from functools import wraps
+
+# Simple in-memory user storage for demo/testing (no DB persistence per requirements)
+# In production, use Firebase Authentication or similar (no server-side storage)
+DEMO_USERS = {
+    'user@example.com': 'password123',
+    'test@test.com': 'test123'
+}
 
 def require_login(f):
     @wraps(f)
@@ -53,26 +82,135 @@ def require_login(f):
     return decorated
 
 
+@app.route('/login/email', methods=['POST'])
+def login_email():
+    """Simple email/password login (in-memory demo, no server-side storage)."""
+    data = request.get_json()
+    email = data.get('email', '').strip()
+    password = data.get('password', '').strip()
+    
+    if not email or not password:
+        logger.warning("Email/password login: missing credentials")
+        return jsonify({'error': 'Email and password required'}), 400
+    
+    # Check against demo users (for testing)
+    if email in DEMO_USERS and DEMO_USERS[email] == password:
+        session['user'] = {
+            'id': email,
+            'login': email,
+            'name': email.split('@')[0]
+        }
+        logger.info("Email login successful for %s", email)
+        return jsonify({'success': True, 'redirect': url_for('analyze')})
+    
+    logger.warning("Email login failed for %s", email)
+    return jsonify({'error': 'Invalid email or password'}), 401
+
+
 @app.route('/login')
 def login():
-    # Redirect user to GitHub for authorization
+    # Render a login page that offers multiple OAuth providers
+    return render_template('login.html')
+
+
+@app.route('/auth/debug')
+def auth_debug():
+    """Return non-sensitive OAuth debug info to help diagnose redirect/ENV issues."""
+    info = {
+        'github_client_id_set': bool(os.environ.get('GITHUB_CLIENT_ID')),
+        'google_client_id_set': bool(os.environ.get('GOOGLE_CLIENT_ID')),
+        'callback_github': url_for('auth_callback', _external=True),
+        'callback_google': url_for('auth_google_callback', _external=True),
+        'server_base': request.host_url
+    }
+    return jsonify(info)
+
+
+@app.route('/login/github')
+def login_github():
     redirect_uri = url_for('auth_callback', _external=True)
     return oauth.github.authorize_redirect(redirect_uri)
+
+
+@app.route('/login/github/debug')
+def login_github_debug():
+    """Return the GitHub authorize URL instead of redirecting (debug only)."""
+    redirect_uri = url_for('auth_callback', _external=True)
+    try:
+        resp = oauth.github.authorize_redirect(redirect_uri)
+        location = resp.headers.get('Location') if resp and hasattr(resp, 'headers') else None
+        return jsonify({'authorize_url': location})
+    except Exception as e:
+        logger.error("GitHub authorize debug error: %s", e)
+        return jsonify({'error': str(e)}), 400
+
+
+@app.route('/login/google')
+def login_google():
+    redirect_uri = url_for('auth_google_callback', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@app.route('/login/google/debug')
+def login_google_debug():
+    """Return the Google authorize URL instead of redirecting (debug only)."""
+    redirect_uri = url_for('auth_google_callback', _external=True)
+    try:
+        resp = oauth.google.authorize_redirect(redirect_uri)
+        location = resp.headers.get('Location') if resp and hasattr(resp, 'headers') else None
+        return jsonify({'authorize_url': location})
+    except Exception as e:
+        logger.error("Google authorize debug error: %s", e)
+        return jsonify({'error': str(e)}), 400
 
 
 @app.route('/auth/callback')
 def auth_callback():
     # Handle callback from GitHub
-    token = oauth.github.authorize_access_token()
+    try:
+        token = oauth.github.authorize_access_token()
+    except Exception as e:
+        logger.error("GitHub authorize error: %s", e)
+        return render_template('auth_error.html', provider='GitHub', error=str(e)), 400
     if not token:
-        return redirect(url_for('landing'))
-    resp = oauth.github.get('user')
-    profile = resp.json()
+        logger.warning("GitHub authorize returned no token")
+        return render_template('auth_error.html', provider='GitHub', error='No token received'), 400
+    try:
+        resp = oauth.github.get('user')
+        profile = resp.json()
+    except Exception as e:
+        logger.error("GitHub profile fetch error: %s", e)
+        return render_template('auth_error.html', provider='GitHub', error=str(e)), 400
     # Store minimal profile in session only (no DB persistence)
     session['user'] = {
         'id': profile.get('id'),
         'login': profile.get('login'),
         'name': profile.get('name') or profile.get('login')
+    }
+    return redirect(url_for('analyze'))
+
+
+@app.route('/auth/google/callback')
+def auth_google_callback():
+    try:
+        token = oauth.google.authorize_access_token()
+    except Exception as e:
+        logger.error("Google authorize error: %s", e)
+        return render_template('auth_error.html', provider='Google', error=str(e)), 400
+    if not token:
+        logger.warning("Google authorize returned no token")
+        return render_template('auth_error.html', provider='Google', error='No token received'), 400
+    try:
+        resp = oauth.google.get('userinfo')
+        profile = resp.json()
+    except Exception as e:
+        logger.error("Google userinfo fetch error: %s", e)
+        return render_template('auth_error.html', provider='Google', error=str(e)), 400
+    # Google returns 'email' and 'name'
+    session['user'] = {
+        'id': profile.get('id') or profile.get('email'),
+        'login': profile.get('email'),
+        'name': profile.get('name') or profile.get('email')
     }
     return redirect(url_for('analyze'))
 
@@ -87,9 +225,7 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 limiter = Limiter(key_func=get_remote_address)
 limiter.init_app(app)
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+
 
 # Load the trained model (prefer multilabel model if available)
 vectorizer = None
