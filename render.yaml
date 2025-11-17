@@ -7,7 +7,8 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn src.app:app
+    # Bind to the port Render provides and use a small worker pool
+    startCommand: gunicorn src.app:app --bind 0.0.0.0:$PORT --workers 3
     envVars:
       - key: SECRET_KEY
         sync: false  # You'll set this in Render dashboard

@@ -76,6 +76,18 @@ body {
     flex-wrap: wrap;
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.nav-actions .user-greet {
+    font-weight: 600;
+    margin-right: var(--spacing-sm);
+    color: var(--text-color);
+}
+
 .logo {
     font-size: var(--fs-xl);
     font-weight: 600;
@@ -450,6 +462,17 @@ body {
     .btn {
         width: 100%;
         margin-bottom: var(--spacing-md);
+    }
+
+    .nav-actions {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+    }
+
+    .nav-actions .btn,
+    .nav-actions a {
+        width: 100%;
     }
 
     .results-grid {

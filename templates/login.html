@@ -1,76 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Mental Health Sentiment Tracking</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Login — MindSentiment</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            justify-content: center;
         }
-
-        .login-container {
-            background: white;
+        .card {
+            background: #fff;
             border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 500px;
-            padding: 40px;
-            animation: slideIn 0.5s ease-out;
+            padding: 36px;
+            max-width: 400px;
+            width: 94%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
         }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-            color: #667eea;
-            font-size: 28px;
-            margin: 0 0 10px 0;
-        }
-
-        .login-header p {
-            color: #666;
-            font-size: 14px;
-            margin: 0;
-        }
-
+        h1 { color: #333; margin-bottom: 6px; font-size: 28px; }
+        .subtitle { color: #666; margin-bottom: 24px; font-size: 14px; }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
-
-        .form-group label {
+        label {
             display: block;
-            margin-bottom: 6px;
             color: #333;
             font-weight: 600;
+            margin-bottom: 6px;
             font-size: 13px;
         }
-
-        .form-group input {
+        input[type="text"],
+        input[type="password"] {
             width: 100%;
             padding: 10px 12px;
             border: 2px solid #e0e0e0;
             border-radius: 6px;
             font-size: 14px;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
+            transition: all 0.2s;
+            font-family: inherit;
         }
-
-        .form-group input:focus {
+        input[type="text"]:focus,
+        input[type="password"]:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
-
-        .login-btn {
+        .btn {
             width: 100%;
             padding: 11px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -80,355 +60,77 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 15px;
+            transition: all 0.2s;
+            margin-top: 6px;
         }
-
-        .login-btn:hover {
+        .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
         }
-
-        .login-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+        .btn:active {
+            transform: translateY(0);
         }
-
-        .oauth-btn {
-            display: block;
-            width: 100%;
-            padding: 11px;
-            margin-bottom: 10px;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .oauth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .github-btn {
-            background: #333;
-            color: white;
-        }
-
-        .google-btn {
-            background: #DB4437;
-            color: white;
-        }
-
-        .message {
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 13px;
-            display: none;
-        }
-
-        .message.error {
+        .error {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
-            display: block;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            display: block;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e0e0e0;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 8px;
-            position: relative;
-            color: #999;
-            font-size: 12px;
-        }
-
-        .toggle-btn {
-            background: none;
-            border: none;
-            color: #667eea;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: underline;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 16px;
             font-size: 13px;
-            padding: 0;
         }
-
-        .toggle-btn:hover {
-            color: #764ba2;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .privacy-note {
-            text-align: center;
+        .note {
             font-size: 11px;
             color: #999;
-            margin-top: 15px;
-            line-height: 1.4;
+            margin-top: 16px;
+            text-align: center;
         }
-
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 25px 20px;
-                margin: 20px;
-                max-width: 100%;
-            }
-
-            .login-header h1 {
-                font-size: 22px;
-            }
+        .demo-creds {
+            background: #e8f4f8;
+            border-left: 3px solid #17a2b8;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 16px;
+            color: #333;
+        }
+        .demo-creds strong {
+            display: block;
+            margin-bottom: 4px;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1>🧠 MindSentiment</h1>
-            <p>Mental Health Sentiment Tracking</p>
+  <div class="card">
+    <h1>🧠 MindSentiment</h1>
+    <p class="subtitle">Mental Health Sentiment Analysis</p>
+
+    {% if error %}
+    <div class="error">❌ {{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required autofocus>
         </div>
 
-        <div id="message" class="message"></div>
-
-        <!-- Email/Password Section -->
-        <div id="emailSection">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="your@email.com" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="6+ characters" required>
-            </div>
-            <button id="emailLoginBtn" class="login-btn">Sign In</button>
-            <div style="text-align: center; margin-top: 10px;">
-                <span style="font-size: 12px; color: #666;">Don't have an account? </span>
-                <button id="signupToggleBtn" class="toggle-btn">Sign up</button>
-            </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
         </div>
 
-        <!-- Sign Up Section (Hidden) -->
-        <div id="signupSection" class="hidden">
-            <div class="form-group">
-                <label for="signupEmail">Email</label>
-                <input type="email" id="signupEmail" placeholder="your@email.com" required>
-            </div>
-            <div class="form-group">
-                <label for="signupPassword">Password</label>
-                <input type="password" id="signupPassword" placeholder="At least 6 characters" required>
-            </div>
-            <button id="signupBtn" class="login-btn">Create Account</button>
-            <div style="text-align: center; margin-top: 10px;">
-                <span style="font-size: 12px; color: #666;">Already have an account? </span>
-                <button id="loginToggleBtn" class="toggle-btn">Sign in</button>
-            </div>
-        </div>
+        <button type="submit" class="btn">Sign In</button>
+    </form>
 
-        <div class="divider"><span>Or continue with</span></div>
-
-        <!-- OAuth Buttons -->
-        <button id="githubBtn" class="oauth-btn github-btn">🐙 Sign in with GitHub</button>
-        <button id="googleBtn" class="oauth-btn google-btn">🔍 Sign in with Google</button>
-
-        <div class="privacy-note">
-            🔒 Authentication via Firebase. Session stored locally. No user data persisted on servers.
-        </div>
+    <div class="demo-creds">
+        <strong>Demo Credentials:</strong>
+        user / password123<br>
+        admin / admin123<br>
+        demo / demo
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
-
-    <script>
-        // ===== PASTE YOUR FIREBASE CONFIG BELOW =====
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        // ===== END FIREBASE CONFIG =====
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        const messageEl = document.getElementById('message');
-        const emailSection = document.getElementById('emailSection');
-        const signupSection = document.getElementById('signupSection');
-
-        // Toggle between login and signup
-        document.getElementById('signupToggleBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            emailSection.classList.add('hidden');
-            signupSection.classList.remove('hidden');
-            messageEl.classList.remove('error', 'success');
-            messageEl.textContent = '';
-        });
-
-        document.getElementById('loginToggleBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            signupSection.classList.add('hidden');
-            emailSection.classList.remove('hidden');
-            messageEl.classList.remove('error', 'success');
-            messageEl.textContent = '';
-        });
-
-        // Email/Password Sign In
-        document.getElementById('emailLoginBtn').addEventListener('click', async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            if (!email || !password) {
-                showMessage('Please enter email and password', 'error');
-                return;
-            }
-
-            try {
-                const btn = document.getElementById('emailLoginBtn');
-                btn.disabled = true;
-                btn.textContent = 'Signing in...';
-
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const idToken = await userCredential.user.getIdToken();
-
-                const res = await fetch('/auth/firebase-callback', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idToken })
-                });
-
-                if (res.ok) {
-                    showMessage('Login successful! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = '/analyze', 1500);
-                } else {
-                    showMessage('Session failed', 'error');
-                    btn.disabled = false;
-                    btn.textContent = 'Sign In';
-                }
-            } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
-                document.getElementById('emailLoginBtn').disabled = false;
-                document.getElementById('emailLoginBtn').textContent = 'Sign In';
-            }
-        });
-
-        // Email/Password Sign Up
-        document.getElementById('signupBtn').addEventListener('click', async () => {
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-
-            if (!email || !password || password.length < 6) {
-                showMessage('Email and password (6+ chars) required', 'error');
-                return;
-            }
-
-            try {
-                const btn = document.getElementById('signupBtn');
-                btn.disabled = true;
-                btn.textContent = 'Creating account...';
-
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const idToken = await userCredential.user.getIdToken();
-
-                const res = await fetch('/auth/firebase-callback', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idToken })
-                });
-
-                if (res.ok) {
-                    showMessage('Account created! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = '/analyze', 1500);
-                } else {
-                    showMessage('Session failed', 'error');
-                    btn.disabled = false;
-                    btn.textContent = 'Create Account';
-                }
-            } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
-                document.getElementById('signupBtn').disabled = false;
-                document.getElementById('signupBtn').textContent = 'Create Account';
-            }
-        });
-
-        // GitHub Login
-        document.getElementById('githubBtn').addEventListener('click', async () => {
-            try {
-                const provider = new firebase.auth.GithubAuthProvider();
-                const userCredential = await auth.signInWithPopup(provider);
-                const idToken = await userCredential.user.getIdToken();
-
-                const res = await fetch('/auth/firebase-callback', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idToken })
-                });
-
-                if (res.ok) {
-                    showMessage('Login successful! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = '/analyze', 1500);
-                }
-            } catch (error) {
-                showMessage('GitHub login failed: ' + error.message, 'error');
-            }
-        });
-
-        // Google Login
-        document.getElementById('googleBtn').addEventListener('click', async () => {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                const userCredential = await auth.signInWithPopup(provider);
-                const idToken = await userCredential.user.getIdToken();
-
-                const res = await fetch('/auth/firebase-callback', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idToken })
-                });
-
-                if (res.ok) {
-                    showMessage('Login successful! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = '/analyze', 1500);
-                }
-            } catch (error) {
-                showMessage('Google login failed: ' + error.message, 'error');
-            }
-        });
-
-        function showMessage(text, type) {
-            messageEl.textContent = text;
-            messageEl.className = 'message ' + type;
-        }
-    </script>
+    <p class="note">No user data stored. Sessions are session-based only.</p>
+  </div>
 </body>
 </html>

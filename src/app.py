@@ -2,6 +2,14 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+    load_dotenv(env_path)
+except ImportError:
+    pass
+
 from flask import Flask, request, jsonify, render_template, send_file, session, redirect, url_for
 from flask_caching import Cache
 from flask_limiter import Limiter
@@ -32,7 +40,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-me')
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.info("App initialized. Using Firebase Authentication.")
+logger.info("App initialized. Using simple session-based authentication.")
 
 from functools import wraps
 
@@ -45,10 +53,29 @@ def require_login(f):
     return decorated
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Render a login page with Firebase authentication
-    return render_template('login.html')
+    error = None
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        
+        # Simple hardcoded credentials for demo (no database needed)
+        valid_users = {
+            'user': 'password123',
+            'admin': 'admin123',
+            'demo': 'demo'
+        }
+        
+        if username in valid_users and valid_users[username] == password:
+            session['user'] = {'name': username, 'id': username}
+            logger.info(f"User {username} logged in")
+            return redirect(url_for('analyze'))
+        else:
+            error = 'Invalid username or password'
+            logger.warning(f"Failed login attempt for user: {username}")
+    
+    return render_template('login.html', error=error)
 
 
 @app.route('/logout')
@@ -57,33 +84,6 @@ def logout():
     return redirect(url_for('landing'))
 
 
-@app.route('/auth/firebase-callback', methods=['POST'])
-def firebase_callback():
-    """Handle Firebase authentication tokens and create server session."""
-    data = request.get_json()
-    id_token = data.get('idToken')
-    
-    if not id_token:
-        logger.warning("Firebase callback: missing idToken")
-        return jsonify({'error': 'Missing idToken'}), 400
-    
-    try:
-        # In production, verify the token with Firebase Admin SDK
-        # For now, we trust Firebase and extract claims from the token
-        # This is safe because Firebase only issues tokens to authenticated users
-        
-        # Store a minimal user session (only the token ID, not the token itself)
-        # The frontend manages the actual token in localStorage
-        session['user'] = {
-            'id': id_token[:20],  # Use first 20 chars as session ID
-            'authenticated': True,
-            'timestamp': str(pd.Timestamp.now())
-        }
-        logger.info("Firebase auth successful")
-        return jsonify({'success': True})
-    except Exception as e:
-        logger.error(f"Firebase callback error: {e}")
-        return jsonify({'error': 'Authentication failed'}), 400
 
 # Configure caching and rate limiting
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})

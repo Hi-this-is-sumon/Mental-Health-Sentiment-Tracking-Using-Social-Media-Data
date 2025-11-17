@@ -19,3 +19,4 @@ werkzeug
 authlib
 requests
 gunicorn
+python-dotenv
