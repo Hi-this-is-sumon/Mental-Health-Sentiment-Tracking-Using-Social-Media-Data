@@ -103,8 +103,22 @@ def logout():
 
 # Configure caching and rate limiting
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-limiter = Limiter(key_func=get_remote_address)
-limiter.init_app(app)
+
+# Configure Flask-Limiter with file-based storage for production
+import tempfile
+rate_limit_dir = tempfile.gettempdir()
+try:
+    limiter = Limiter(
+        app=app,
+        key_func=get_remote_address,
+        storage_uri=f"file://{rate_limit_dir}/flask_limiter",
+        default_limits=["200 per day", "50 per hour"]
+    )
+except Exception as e:
+    # Fallback to in-memory if file storage fails
+    logger.warning(f"Could not configure file-based rate limiting: {e}. Using in-memory storage.")
+    limiter = Limiter(key_func=get_remote_address)
+    limiter.init_app(app)
 
 
 
