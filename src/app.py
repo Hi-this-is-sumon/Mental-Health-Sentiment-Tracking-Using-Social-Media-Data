@@ -104,11 +104,10 @@ def logout():
 # Configure caching and rate limiting
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
-# Configure Flask-Limiter
-# Use simple in-memory storage (sufficient for this app)
-# The warning is suppressed by explicitly initializing the limiter
+# Configure Flask-Limiter with explicit in-memory storage to suppress warnings
 limiter = Limiter(
     key_func=get_remote_address,
+    storage_uri="memory://",
     default_limits=["200 per day", "50 per hour"]
 )
 limiter.init_app(app)
