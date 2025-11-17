@@ -45,8 +45,18 @@ logger.info("App initialized. Using simple session-based authentication.")
 # Helper function to resolve file paths relative to project root
 def get_project_path(relative_path):
     """Resolve a relative path from the project root (parent of src/)."""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_dir, relative_path)
+    # __file__ is src/app.py
+    # Go up 2 levels: src/app.py -> src -> (project root)
+    app_dir = os.path.dirname(os.path.abspath(__file__))  # src/
+    project_root = os.path.dirname(app_dir)  # project root
+    full_path = os.path.join(project_root, relative_path)
+    
+    # If path doesn't exist and we're in a nested structure (Render), try going up another level
+    if not os.path.exists(full_path):
+        parent_root = os.path.dirname(project_root)
+        full_path = os.path.join(parent_root, relative_path)
+    
+    return full_path
 
 from functools import wraps
 
