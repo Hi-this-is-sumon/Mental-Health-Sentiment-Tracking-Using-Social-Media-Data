@@ -42,6 +42,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info("App initialized. Using simple session-based authentication.")
 
+# Helper function to resolve file paths relative to project root
+def get_project_path(relative_path):
+    """Resolve a relative path from the project root (parent of src/)."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_dir, relative_path)
+
 from functools import wraps
 
 def require_login(f):
@@ -98,7 +104,7 @@ model = None
 mlb = None
 for candidate in ('models/sample_multilabel.joblib', 'models/sample_baseline.joblib'):
     try:
-        model_data = joblib.load(candidate)
+        model_data = joblib.load(get_project_path(candidate))
         vectorizer = model_data.get('vectorizer')
         model = model_data.get('model')
         mlb = model_data.get('mlb')
@@ -170,7 +176,7 @@ def perform_sentiment_analysis(text):
         # Try to load model if not loaded
         for candidate in ('models/sample_multilabel.joblib', 'models/sample_baseline.joblib'):
             try:
-                model_data = joblib.load(candidate)
+                model_data = joblib.load(get_project_path(candidate))
                 vectorizer = model_data.get('vectorizer')
                 model = model_data.get('model')
                 mlb = model_data.get('mlb')
@@ -391,7 +397,7 @@ def plot_sentiment():
             if (pd.Timestamp.now().timestamp() - mtime) < 300:
                 return send_file(static_path, mimetype='image/png')
         print("Loading data for emotion distribution plot...")
-        df = pd.read_csv('data/sample.csv')
+        df = pd.read_csv(get_project_path('data/sample.csv'))
 
         # Sample a smaller subset for faster processing (max 10,000 rows for speed)
         if len(df) > 10000:
@@ -531,7 +537,7 @@ def model_info():
     }
     
     # Add metadata if present (from new training)
-    model_data = joblib.load('models/sample_multilabel.joblib')
+    model_data = joblib.load(get_project_path('models/sample_multilabel.joblib'))
     if 'meta' in model_data:
         info.update(model_data['meta'])
         
@@ -705,7 +711,7 @@ def wordcloud():
             if (pd.Timestamp.now().timestamp() - mtime) < 300:
                 return send_file(static_path, mimetype='image/png')
         # Read data and sample if too large
-        df = pd.read_csv('data/sample.csv')
+        df = pd.read_csv(get_project_path('data/sample.csv'))
         if df.shape[0] > 50000:
             df = df.sample(n=50000, random_state=42)
 
@@ -930,7 +936,7 @@ def export_history_pdf():
         try:
             # Get emotion distribution plot (handles multi-label by counting emotion_labels)
             sentiment_img_data = None
-            df_plot = pd.read_csv('data/sample.csv')
+            df_plot = pd.read_csv(get_project_path('data/sample.csv'))
             emotion_counts = {}
             for labels in df_plot['emotion_labels'].fillna('').astype(str).str.split(','):
                 for emo in labels:
@@ -971,7 +977,7 @@ def export_history_pdf():
         try:
             # Word frequency plot (using 'message' column)
             wordcloud_img_data = io.BytesIO()
-            df_msg = pd.read_csv('data/sample.csv')
+            df_msg = pd.read_csv(get_project_path('data/sample.csv'))
             import re
             from collections import Counter
 
@@ -1161,7 +1167,7 @@ def export_pdf():
         try:
             # Get emotion distribution plot (handles multi-label by counting emotion_labels)
             sentiment_img_data = io.BytesIO()
-            df_plot = pd.read_csv('data/sample.csv')
+            df_plot = pd.read_csv(get_project_path('data/sample.csv'))
             emotion_counts = {}
             for labels in df_plot['emotion_labels'].fillna('').astype(str).str.split(','):
                 for emo in labels:
@@ -1202,7 +1208,7 @@ def export_pdf():
             # Get word frequency plot
             wordcloud_img_data = io.BytesIO()
             # Load dataset and support either 'message' or 'text' as the text column
-            df = pd.read_csv('data/sample.csv')
+            df = pd.read_csv(get_project_path('data/sample.csv'))
             text_col = 'message' if 'message' in df.columns else ('text' if 'text' in df.columns else None)
             if text_col is None:
                 raise ValueError("No 'message' or 'text' column found in dataset for word frequency generation")
